@@ -29,7 +29,7 @@ async def format_editrow(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Format perintah /edit:\n\n"
         "/edit <NO> <TGL_CLOSE> <NO_TIKET> <NO_INET> <PERBAIKAN> <TEKNISI>\n\n"
         "Contoh:\n"
-        '/editrow 49 11/11/2025 INC42431688 141550108955 "internet baik, pelanggan salah lapor." SUPRI\n\n'
+        '/edit 49 11/11/2025 INC42431688 141550108955 "internet baik, pelanggan salah lapor." SUPRI\n\n'
         "Catatan:\n"
         "- <NO> adalah nomor urut data (bukan baris sheet, baris sheet = NO + 1).\n"
         "- <PERBAIKAN> bisa menggunakan kutip jika ada spasi.\n"
