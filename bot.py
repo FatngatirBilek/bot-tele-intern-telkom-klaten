@@ -115,29 +115,25 @@ async def input_row(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         # Cari baris kosong pertama di kolom B (TGL CLOSE)
         col_b = worksheet.col_values(2)
+        col_a = worksheet.col_values(1)
         row = None
+        no = None
         for i, val in enumerate(col_b[1:], start=2):  # skip header, start=2
             if not val.strip():
                 row = i
+                if len(col_a) >= i:
+                    no = col_a[i - 1]
+                else:
+                    no = str(i - 1)
                 break
         if row is None:
             row = len(col_b) + 1
-        # Nomor urut = max kolom A + 1
-        col_a = worksheet.col_values(1)
-        max_no = 0
-        for val in col_a[1:]:
-            try:
-                num = int(val)
-                if num > max_no:
-                    max_no = num
-            except Exception:
-                continue
-        next_no = max_no + 1
+            no = str(row - 1)
         tgl_close = normalize_date(context.args[0])
-        values = [str(next_no), tgl_close] + context.args[1:]
+        values = [no, tgl_close] + context.args[1:]
         worksheet.update(f"A{row}:F{row}", [values], value_input_option="USER_ENTERED")
         await update.message.reply_text(
-            f"Baris baru {row} (NO={next_no}) di sheet GID {DEFAULT_GID} berhasil diisi dengan: {values}"
+            f"Baris baru {row} (NO={no}) di sheet GID {DEFAULT_GID} berhasil diisi dengan: {values}"
         )
     except Exception as e:
         await update.message.reply_text(f"Gagal input baris: {e} ({type(e)})")
