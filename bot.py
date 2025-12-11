@@ -38,7 +38,6 @@ def update_sheet(cell, value):
 
 
 async def edit_sheet(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Contoh: /edit A1 Halo
     if len(context.args) < 2:
         await update.message.reply_text("Format: /edit <cell> <value>")
         return
@@ -112,7 +111,17 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("hai", hai))
     app.add_handler(CommandHandler("edit", edit_sheet))
-    app.add_handler(CommandHandler("editrow", edit_row))
+    import shlex
+
+    def editrow_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        try:
+            args = shlex.split(update.message.text)[1:]  # buang /editrow
+            context.args = args
+            return edit_row(update, context)
+        except Exception as e:
+            update.message.reply_text(f"Format salah: {e}")
+
+    app.add_handler(CommandHandler("editrow", editrow_handler))
     app.add_handler(CommandHandler("testcell", test_update_cell))
     print("Bot berjalan... Tekan Ctrl+C untuk berhenti.")
     app.run_polling()
