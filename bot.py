@@ -24,11 +24,25 @@ async def hai(update: Update, context: ContextTypes.DEFAULT_TYPE):
 DEFAULT_GID = 898337840
 
 
-async def edit_row(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def format_editrow(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    txt = (
+        "Format perintah /edit:\n\n"
+        "/edit <NO> <TGL_CLOSE> <NO_TIKET> <NO_INET> <PERBAIKAN> <TEKNISI>\n\n"
+        "Contoh:\n"
+        '/editrow 49 11/11/2025 INC42431688 141550108955 "internet baik, pelanggan salah lapor." SUPRI\n\n'
+        "Catatan:\n"
+        "- <NO> adalah nomor urut data (bukan baris sheet, baris sheet = NO + 1).\n"
+        "- <PERBAIKAN> bisa menggunakan kutip jika ada spasi.\n"
+        "- Data akan diisi ke kolom A-F pada sheet dengan GID default."
+    )
+    await update.message.reply_text(txt)
+
+
+async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         if len(context.args) != 6:
             await update.message.reply_text(
-                "Format: /editrow <NO> <TGL_CLOSE> <NO_TIKET> <NO_INET> <PERBAIKAN> <TEKNISI>"
+                "Format: /edit <NO> <TGL_CLOSE> <NO_TIKET> <NO_INET> <PERBAIKAN> <TEKNISI>"
             )
             return
         row = int(context.args[0]) + 1  # Tambah 1 agar sesuai baris di sheet
@@ -63,17 +77,18 @@ def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("hai", hai))
+    app.add_handler(CommandHandler("format", format_editrow))
     import shlex
 
-    def editrow_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    def edit_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
-            args = shlex.split(update.message.text)[1:]  # buang /editrow
+            args = shlex.split(update.message.text)[1:]
             context.args = args
-            return edit_row(update, context)
+            return edit(update, context)
         except Exception as e:
             update.message.reply_text(f"Format salah: {e}")
 
-    app.add_handler(CommandHandler("editrow", editrow_handler))
+    app.add_handler(CommandHandler("edit", edit_handler))
     print("Bot berjalan... Tekan Ctrl+C untuk berhenti.")
     app.run_polling()
 
