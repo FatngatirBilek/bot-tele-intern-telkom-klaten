@@ -21,35 +21,6 @@ async def hai(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Hai, {name}!")
 
 
-def update_sheet(cell, value):
-    creds = Credentials.from_service_account_file(
-        "tele-bot-inter-8af7bdb6401f.json",
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive",
-        ],
-    )
-    gc = gspread.authorize(creds)
-    sh = gc.open_by_key(
-        "1XJY7MBlkAcCKThB1uXK4v1jWqtenj5Eu-sLicHqcGfM"
-    )  # Spreadsheet lama sesuai permintaan user
-    worksheet = sh.sheet1
-    worksheet.update(cell, value)
-
-
-async def edit_sheet(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if len(context.args) < 2:
-        await update.message.reply_text("Format: /edit <cell> <value>")
-        return
-    cell = context.args[0]
-    value = " ".join(context.args[1:])
-    try:
-        update_sheet(cell, value)
-        await update.message.reply_text(f"Cell {cell} diupdate dengan nilai: {value}")
-    except Exception as e:
-        await update.message.reply_text(f"Gagal update: {e}")
-
-
 DEFAULT_GID = 898337840
 
 
@@ -85,24 +56,6 @@ async def edit_row(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Gagal update baris: {e} ({type(e)})")
 
 
-async def test_update_cell(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        creds = Credentials.from_service_account_file(
-            "tele-bot-inter-8af7bdb6401f.json",
-            scopes=[
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive",
-            ],
-        )
-        gc = gspread.authorize(creds)
-        sh = gc.open_by_key("1XJY7MBlkAcCKThB1uXK4v1jWqtenj5Eu-sLicHqcGfM")
-        worksheet = sh.sheet1
-        worksheet.update_acell("A49", "TEST")
-        await update.message.reply_text("Berhasil update cell A49 dengan 'TEST'.")
-    except Exception as e:
-        await update.message.reply_text(f"Gagal update cell: {e} ({type(e)})")
-
-
 def main():
     if not TOKEN:
         print("Token tidak ditemukan di file .env")
@@ -110,7 +63,6 @@ def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("hai", hai))
-    app.add_handler(CommandHandler("edit", edit_sheet))
     import shlex
 
     def editrow_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -122,7 +74,6 @@ def main():
             update.message.reply_text(f"Format salah: {e}")
 
     app.add_handler(CommandHandler("editrow", editrow_handler))
-    app.add_handler(CommandHandler("testcell", test_update_cell))
     print("Bot berjalan... Tekan Ctrl+C untuk berhenti.")
     app.run_polling()
 
