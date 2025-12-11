@@ -21,7 +21,8 @@ async def hai(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Hai, {name}!")
 
 
-DEFAULT_GID = 898337840
+SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+DEFAULT_GID = int(os.getenv("SHEET_GID", "0"))
 
 
 async def format_editrow(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -55,7 +56,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ],
         )
         gc = gspread.authorize(creds)
-        sh = gc.open_by_key("1XJY7MBlkAcCKThB1uXK4v1jWqtenj5Eu-sLicHqcGfM")
+        sh = gc.open_by_key(SPREADSHEET_ID)
         worksheet = next((ws for ws in sh.worksheets() if ws.id == DEFAULT_GID), None)
         if worksheet is None:
             await update.message.reply_text(
