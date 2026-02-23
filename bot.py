@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -10,6 +11,21 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 # Memuat variabel lingkungan dari file .env
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+SERVICE_ACCOUNT_FILE = "tele-bot-inter-8af7bdb6401f.json"
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+
+def get_gspread_credentials():
+    """Load Google credentials from file or GOOGLE_CREDENTIALS_JSON env var."""
+    creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    if creds_json:
+        info = json.loads(creds_json)
+        return Credentials.from_service_account_info(info, scopes=SCOPES)
+    return Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -68,13 +84,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
         values = [context.args[0], tgl_close] + context.args[
             2:
         ]  # NO tetap sesuai urutan
-        creds = Credentials.from_service_account_file(
-            "tele-bot-inter-8af7bdb6401f.json",
-            scopes=[
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive",
-            ],
-        )
+        creds = get_gspread_credentials()
         gc = gspread.authorize(creds)
         sh = gc.open_by_key(SPREADSHEET_ID)
         worksheet = next((ws for ws in sh.worksheets() if ws.id == DEFAULT_GID), None)
@@ -98,13 +108,7 @@ async def input_row(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Format: /input <TGL_CLOSE> <NO_TIKET> <NO_INET> <PERBAIKAN> <TEKNISI>"
             )
             return
-        creds = Credentials.from_service_account_file(
-            "tele-bot-inter-8af7bdb6401f.json",
-            scopes=[
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive",
-            ],
-        )
+        creds = get_gspread_credentials()
         gc = gspread.authorize(creds)
         sh = gc.open_by_key(SPREADSHEET_ID)
         worksheet = next((ws for ws in sh.worksheets() if ws.id == DEFAULT_GID), None)
