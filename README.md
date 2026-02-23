@@ -57,6 +57,8 @@ Kamu bisa menjalankan bot ini 24/7 menggunakan GitHub Actions tanpa server tamba
 
    Bot akan otomatis restart setiap 5 jam melalui scheduled workflow.
 
+> **Catatan:** GitHub Actions memiliki batas waktu maksimal 6 jam per job. Workflow ini menggunakan timeout ~5 jam dengan restart otomatis setiap 5 jam. Akun GitHub gratis memiliki kuota bulanan untuk Actions minutes — pantau penggunaan di **Settings → Billing**.
+
 ## Hosting dengan Docker
 
 ```bash
