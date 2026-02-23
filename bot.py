@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 import gspread
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
+from gspread.utils import ValueInputOption
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
@@ -40,6 +41,8 @@ def get_google_sheet():
         ],
     )
     gc = gspread.authorize(creds)
+    if not SPREADSHEET_ID:
+        raise ValueError("SPREADSHEET_ID tidak ditemukan di file .env")
     sh = gc.open_by_key(SPREADSHEET_ID)
     worksheet = next((ws for ws in sh.worksheets() if ws.id == SHEET_GID), None)
     return worksheet
@@ -47,9 +50,11 @@ def get_google_sheet():
 
 async def close(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler untuk command /close [Nomor Tiket] [Keterangan]"""
+    if not update.message:
+        return
+
     args = context.args
 
-    # Tidak ada argumen sama sekali
     if not args:
         await update.message.reply_text(
             "❌ Format salah!\n"
@@ -102,7 +107,7 @@ async def close(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         row_data = [timestamp, nama_user, nomor_tiket, keterangan]
-        worksheet.append_row(row_data, value_input_option="USER_ENTERED")
+        worksheet.append_row(row_data, value_input_option=ValueInputOption.user_entered)
 
         await update.message.reply_text(
             f"✅ Tiket berhasil di-close!\n\n"
@@ -118,6 +123,10 @@ async def close(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     if not TOKEN:
         print("Token tidak ditemukan di file .env")
+        exit(1)
+
+    if not SPREADSHEET_ID:
+        print("SPREADSHEET_ID tidak ditemukan di file .env")
         exit(1)
 
     app = ApplicationBuilder().token(TOKEN).build()
