@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -17,6 +18,7 @@ SHEET_GID = int(os.getenv("SHEET_GID", "0"))
 SERVICE_ACCOUNT_FILE = os.getenv(
     "SERVICE_ACCOUNT_FILE", "tele-bot-inter-8af7bdb6401f.json"
 )
+GOOGLE_CREDENTIALS_JSON = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
 # Timezone WIB (UTC+7)
 WIB = timezone(timedelta(hours=7))
@@ -33,13 +35,17 @@ def is_ticket_number(text: str) -> bool:
 
 def get_google_sheet():
     """Inisialisasi koneksi ke Google Sheets."""
-    creds = Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive",
-        ],
-    )
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive",
+    ]
+    if GOOGLE_CREDENTIALS_JSON:
+        creds_info = json.loads(GOOGLE_CREDENTIALS_JSON)
+        creds = Credentials.from_service_account_info(creds_info, scopes=scopes)
+    else:
+        creds = Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=scopes
+        )
     gc = gspread.authorize(creds)
     if not SPREADSHEET_ID:
         raise ValueError("SPREADSHEET_ID tidak ditemukan di file .env")
