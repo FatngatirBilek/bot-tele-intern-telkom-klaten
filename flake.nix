@@ -25,11 +25,12 @@
       ];
 
       shellHook = ''
-        echo "🤖 Bot Ticket Environment Ready, Cok!"
-        # Cek file .env
+        echo "Bot Ticket Environment Ready, dawgg 🥀🥀 "
+
         if [ ! -f .env ]; then
           echo "⚠️  Woy, file .env belum ada! Bikin dulu gih."
         fi
+        exec zsh
       '';
     };
   };
