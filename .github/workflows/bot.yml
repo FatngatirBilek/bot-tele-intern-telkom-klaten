@@ -2,8 +2,11 @@ name: Run Telegram Bot
 
 on:
   schedule:
-    - cron: '0 0,6,12,18 * * *'
+    - cron: "0 0,6,12,18 * * *"
   workflow_dispatch:
+  push:
+    branches:
+      - "**"
 
 jobs:
   run-bot:
@@ -17,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
